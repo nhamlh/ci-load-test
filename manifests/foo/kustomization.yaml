@@ -1,0 +1,8 @@
+---
+
+namespace: foo
+resources:
+  - deploy.yaml
+commonLabels:
+  app: foo
+  env: dev
