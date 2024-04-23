@@ -13,9 +13,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Create k8s Kind Cluster
+        uses: helm/kind-action@v1
+
+      - name: Get pods
+        id: k8s_pods
+        run: |
+          echo "pods=$(kubectl get pods --all-namespaces)" >> "$GITHUB_OUTPUTS"
+
       # Needs write permission: Settings -> Actions -> General -> Workflow permissions
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
             Hello world ! :wave:
+            Here's k8s namespaces: ${{ steps.k8s_pods.outputs.pods }}
