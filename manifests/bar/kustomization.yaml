@@ -1,0 +1,8 @@
+---
+
+namespace: bar
+resources:
+  - deploy.yaml
+commonLabels:
+  app: bar
+  env: dev
