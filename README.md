@@ -2,7 +2,11 @@
 # Steps
 ## Skeleton
 start: 21:45
-end:
+end: 22:20
 
 - github actions with a dummy comment on PR
 - explore kind action
+
+## Working on local instance of kind cluster for faster development
+start: 22:20
+end:
