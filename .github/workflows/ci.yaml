@@ -16,6 +16,10 @@ jobs:
       - name: Create k8s Kind Cluster
         uses: helm/kind-action@v1
 
+      - name: (debug) Get pods
+        run: |
+          kubectl get pods --all-namespaces
+
       - name: Get pods
         id: k8s_pods
         run: |
