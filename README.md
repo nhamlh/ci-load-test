@@ -44,3 +44,10 @@ Create a complete Github Action workflow. At this stage, it's considered that th
 Duration: 2h30
 
 Explore rooms for improvement like remove duplications, organize files better, refactor for easier reading, update README, etc.
+
+
+# Sample workflow run
+
+![Pull request](./images/pr.png)
+
+![Workflow run](./images/workflow_run.png)
