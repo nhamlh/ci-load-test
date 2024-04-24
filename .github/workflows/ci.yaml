@@ -26,13 +26,13 @@ jobs:
             --selector=app.kubernetes.io/component=controller \
             --timeout=90s
 
-          kubectl apply -k manifests/foo
+          kubectl apply -k manifests/app/overlays/foo
           kubectl wait --namespace foo \
             --for=condition=ready pod \
             --selector=app.kubernetes.io/name=http-echo \
             --timeout=90s
 
-          kubectl apply -k manifests/bar
+          kubectl apply -k manifests/app/overlays/bar
           kubectl wait --namespace bar \
             --for=condition=ready pod \
             --selector=app.kubernetes.io/name=http-echo \

@@ -1,0 +1,19 @@
+---
+namespace: foo
+resources:
+  - namespace.yaml
+  - ../../base
+nameSuffix: -foo
+commonLabels:
+  app.kubernetes.io/instance: foo
+
+patches:
+- target:
+    group: networking.k8s.io
+    version: v1
+    kind: Ingress
+    name: echo
+  patch: |-
+    - op: replace
+      path: /spec/rules/0/host
+      value: foo.localhost
