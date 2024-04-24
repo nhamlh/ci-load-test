@@ -44,15 +44,15 @@ jobs:
           curl -Lo vegeta.tar.gz https://github.com/tsenart/vegeta/releases/download/v12.11.1/vegeta_12.11.1_linux_amd64.tar.gz && tar xvf vegeta.tar.gz
 
           results_foo=$(echo "GET http://localhost" \
-          | vegeta attack -header "Host: foo.localhost" -duration=5s \
+          | ./vegeta attack -header "Host: foo.localhost" -duration=5s \
           | tee results_foo.bin \
-          | vegeta report)
+          | ./vegeta report)
 
           echo "RESULTS_FOO<<EOF"$'\n'"$results_foo"$'\n'EOF >> "$GITHUB_OUTPUT"
 
           results_bar=$(echo "GET http://localhost" \
-          | vegeta attack -header "Host: bar.localhost" -duration=5s \
-          | tee results_bar.bin | vegeta report)
+          | ./vegeta attack -header "Host: bar.localhost" -duration=5s \
+          | tee results_bar.bin | ./vegeta report)
 
           echo "RESULTS_BAR<<EOF"$'\n'"$results_bar"$'\n'EOF >> "$GITHUB_OUTPUT"
 
