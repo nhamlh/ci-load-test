@@ -12,6 +12,8 @@ jobs:
   example_comment_pr:
     runs-on: ubuntu-latest
     name: Load testing
+    permissions:
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -58,7 +60,6 @@ jobs:
 
           echo $'\n'EOF >> "$GITHUB_OUTPUT"
 
-      # Needs write permission: Settings -> Actions -> General -> Workflow permissions
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@v2
         with:
