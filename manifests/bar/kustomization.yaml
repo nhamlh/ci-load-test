@@ -4,5 +4,5 @@ namespace: bar
 resources:
   - deploy.yaml
 commonLabels:
-  app: bar
-  env: dev
+  app.kubernetes.io/name: http-echo
+  app.kubernetes.io/instance: bar

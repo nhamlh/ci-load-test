@@ -4,5 +4,5 @@ namespace: foo
 resources:
   - deploy.yaml
 commonLabels:
-  app: foo
-  env: dev
+  app.kubernetes.io/name: http-echo
+  app.kubernetes.io/instance: foo

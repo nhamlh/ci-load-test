@@ -18,19 +18,51 @@ jobs:
         with:
           config: "./kind-config.yaml"
 
-      - name: (debug) Get pods
+      - name: Deploy k8s resources
         run: |
-          kubectl get pods --all-namespaces
+          kubectl apply -k manifests/ingress-controller
+          kubectl wait --namespace ingress-nginx \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/component=controller \
+            --timeout=90s
 
-      - name: Get pods
-        id: k8s_pods
+          kubectl apply -k manifests/foo
+          kubectl wait --namespace foo \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/name=http-echo \
+            --timeout=90s
+
+          kubectl apply -k manifests/bar
+          kubectl wait --namespace bar \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/name=http-echo \
+            --timeout=90s
+
+      - name: Load test
+        id: load_test
         run: |
-          echo "pods=$(kubectl get pods --all-namespaces)" >> "$GITHUB_OUTPUTS"
+          curl -Lo vegeta.tar.gz https://github.com/tsenart/vegeta/releases/download/v12.11.1/vegeta_12.11.1_linux_amd64.tar.gz && tar xvf vegeta.tar.gz
+
+          results_foo=$(echo "GET http://localhost" \
+          | vegeta attack -header "Host: foo.localhost" -duration=5s \
+          | tee results_foo.bin \
+          | vegeta report)
+
+          echo "RESULTS_FOO<<EOF"$'\n'"$results_foo"$'\n'EOF >> "$GITHUB_OUTPUT"
+
+          results_bar=$(echo "GET http://localhost" \
+          | vegeta attack -header "Host: bar.localhost" -duration=5s \
+          | tee results_bar.bin | vegeta report)
+
+          echo "RESULTS_BAR<<EOF"$'\n'"$results_bar"$'\n'EOF >> "$GITHUB_OUTPUT"
 
       # Needs write permission: Settings -> Actions -> General -> Workflow permissions
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
-            Hello world ! :wave:
-            Here's k8s namespaces: ${{ steps.k8s_pods.outputs.pods }}
+            Load testing of FOO service:
+            ${{ steps.k8s_pods.outputs.results_foo }}
+
+            Load testing of BAR service:
+            ${{ steps.k8s_pods.outputs.results_bar }}
