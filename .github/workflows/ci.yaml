@@ -41,28 +41,29 @@ jobs:
       - name: Load test
         id: load_test
         run: |
-          curl -Lo vegeta.tar.gz https://github.com/tsenart/vegeta/releases/download/v12.11.1/vegeta_12.11.1_linux_amd64.tar.gz && tar xvf vegeta.tar.gz
+          VEGETA_VERSION=12.11.1
+          VEGETA_ARCH=linux_amd_64
 
-          results_foo=$(echo "GET http://localhost" \
-          | ./vegeta attack -header "Host: foo.localhost" -duration=5s \
-          | tee results_foo.bin \
-          | ./vegeta report)
+          curl -Lo vegeta.tar.gz https://github.com/tsenart/vegeta/releases/download/v${VEGETA_VERSION}/vegeta_${VEGETA_VERSION}_${VEGETA_ARCH}.tar.gz \
+            && tar xvf vegeta.tar.gz
 
-          echo "RESULTS_FOO<<EOF"$'\n'"$results_foo"$'\n'EOF >> "$GITHUB_OUTPUT"
+          report=$(cat <<EOF
+          for host in (foo bar); do
+            echo "** Load test report of service ${host} **"
+            echo "GET http://localhost" \
+              | ./vegeta attack -header "Host: ${host}.localhost" -duration=5s \
+              | ./vegeta report
+            echo
+          done
+          EOF
+          )
 
-          results_bar=$(echo "GET http://localhost" \
-          | ./vegeta attack -header "Host: bar.localhost" -duration=5s \
-          | tee results_bar.bin | ./vegeta report)
-
-          echo "RESULTS_BAR<<EOF"$'\n'"$results_bar"$'\n'EOF >> "$GITHUB_OUTPUT"
+          echo "LOAD_TEST_REPORT<<EOF"$'\n'"$report"$'\n'EOF >> "$GITHUB_OUTPUT"
 
       # Needs write permission: Settings -> Actions -> General -> Workflow permissions
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
-            Load testing of FOO service:
-            ${{ steps.load_test.outputs.RESULTS_FOO }}
-
-            Load testing of BAR service:
-            ${{ steps.load_test.outputs.RESULTS_BAR }}
+            **Load testing report:**
+            ${{ steps.load_test.outputs.LOAD_TEST_REPORT }}
