@@ -1,5 +1,5 @@
 
-name: Set PR Title from Branch Name
+name: Load testing
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ on:
 jobs:
   example_comment_pr:
     runs-on: ubuntu-latest
-    name: An example job to comment a PR
+    name: Load testing
     steps:
       - name: Checkout
         uses: actions/checkout@v3
