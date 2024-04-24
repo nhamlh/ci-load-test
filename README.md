@@ -15,3 +15,7 @@ end: 23:30
 - provision resources
 - vegeta attack and report
 - comment
+
+## Feature complete workflow
+start: 18:15
+end: 19:30
