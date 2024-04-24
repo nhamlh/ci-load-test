@@ -9,4 +9,9 @@ end: 22:20
 
 ## Working on local instance of kind cluster for faster development
 start: 22:20
-end:
+end: 23:30
+
+- provision cluster
+- provision resources
+- vegeta attack and report
+- comment
