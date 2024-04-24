@@ -42,7 +42,7 @@ jobs:
         id: load_test
         run: |
           VEGETA_VERSION=12.11.1
-          VEGETA_ARCH=linux_amd_64
+          VEGETA_ARCH=linux_amd64
 
           curl -Lo vegeta.tar.gz https://github.com/tsenart/vegeta/releases/download/v${VEGETA_VERSION}/vegeta_${VEGETA_VERSION}_${VEGETA_ARCH}.tar.gz \
             && tar xvf vegeta.tar.gz
