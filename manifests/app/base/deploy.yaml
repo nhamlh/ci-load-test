@@ -23,6 +23,20 @@ spec:
               containerPort: 8080
           args:
             - -listen=:8080
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            successThreshold: 1
+            failureThreshold: 3
+            timeoutSeconds: 5
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
