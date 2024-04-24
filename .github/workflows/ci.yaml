@@ -5,6 +5,9 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  SERVICES: foo bar
+
 jobs:
   example_comment_pr:
     runs-on: ubuntu-latest
@@ -47,18 +50,16 @@ jobs:
           curl -Lo vegeta.tar.gz https://github.com/tsenart/vegeta/releases/download/v${VEGETA_VERSION}/vegeta_${VEGETA_VERSION}_${VEGETA_ARCH}.tar.gz \
             && tar xvf vegeta.tar.gz
 
-          report=$(cat <<EOF
-          for host in (foo bar); do
-            echo "** Load test report of service ${host} **"
+          echo "LOAD_TEST_REPORT<<EOF"$'\n' >> "$GITHUB_OUTPUT"
+
+          for host in ${{ env.SERVICES }}; do
+            echo $'\n'"** Load test report of service ${host} **" >> $GITHUB_OUTPUT
             echo "GET http://localhost" \
               | ./vegeta attack -header "Host: ${host}.localhost" -duration=5s \
-              | ./vegeta report
-            echo
+              | ./vegeta report >> $GITHUB_OUTPUT
           done
-          EOF
-          )
 
-          echo "LOAD_TEST_REPORT<<EOF"$'\n'"$report"$'\n'EOF >> "$GITHUB_OUTPUT"
+          echo $'\n'EOF >> "$GITHUB_OUTPUT"
 
       # Needs write permission: Settings -> Actions -> General -> Workflow permissions
       - name: Comment PR
