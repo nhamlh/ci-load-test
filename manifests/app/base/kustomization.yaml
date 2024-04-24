@@ -1,8 +1,6 @@
 ---
 
-namespace: foo
 resources:
   - deploy.yaml
 commonLabels:
   app.kubernetes.io/name: http-echo
-  app.kubernetes.io/instance: foo
