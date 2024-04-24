@@ -8,7 +8,7 @@ Enable Github Actions (if not enabled yet).
 Open a sample PR to see it in action.
 
 ## Development
-This section describes my process or thought model to develop this application.
+This section describes my thought process to develop this application.
 
 First, try to deliver a feature complete setup. It just need to deliver what we promise to our users: when a PR is openned, trigger a CI job to perform a load testing of http services (foo and bar as place holder services) then comment the load testing report to the PR. At this stage, code maintainability/D.R.Y/performance/etc can be compromised.
 
