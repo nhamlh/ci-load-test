@@ -48,13 +48,13 @@ jobs:
           | tee results_foo.bin \
           | ./vegeta report)
 
-          echo "RESULTS_FOO<<EOF"$'\n'"$results_foo"$'\n'EOF >> "$GITHUB_OUTPUT"
+          echo "RESULTS_FOO=<<EOF"$'\n'"$results_foo"$'\n'EOF >> "$GITHUB_OUTPUT"
 
           results_bar=$(echo "GET http://localhost" \
           | ./vegeta attack -header "Host: bar.localhost" -duration=5s \
           | tee results_bar.bin | ./vegeta report)
 
-          echo "RESULTS_BAR<<EOF"$'\n'"$results_bar"$'\n'EOF >> "$GITHUB_OUTPUT"
+          echo "RESULTS_BAR=<<EOF"$'\n'"$results_bar"$'\n'EOF >> "$GITHUB_OUTPUT"
 
       # Needs write permission: Settings -> Actions -> General -> Workflow permissions
       - name: Comment PR
