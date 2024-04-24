@@ -5,8 +5,6 @@ Clone this repository.
 
 Enable Github Actions (if not enabled yet).
 
-Allow Github Actions to comment on PR: go to Settings -> Actions -> General -> Workflow permissions and tick the 'Read and write permissions' then Save.
-
 Open a sample PR to see it in action.
 
 ## Development
@@ -16,23 +14,33 @@ First, try to deliver a feature complete setup. It just need to deliver what we 
 
 Internal enhancement: when the feature is delivered, we can continue to improve on the codebase in the background.
 
+## Architecture
+
+### Choices made
+- nginx ingress-controller: mature, simple deployment model comparing to comparing to other ingress controllers (usually have envoy proxies accompanied by a control plane).
+- kustomize: kubectl built-in, and kubectl is installed by kind-action. Simple k8s manifests rendering tool, with some level of (accepted) verbosity and repetitiveness. Therefore kustomize is sufficient for this task without the need of installing and using another tool like helm, or terraform.
+- vegeta: simple and portable (single static-linked binary) thus easy to install and run; simple text-based report with enough statictics, which is easy to add as PR comment.
+
+## TODOs
+- Easily adding new service to test. Whilst the workflow is extensible, the services list is locked to (foo bar). We add a step at the top of the workflow which defines a SERVICES_DIR var and scan for sub-dir within that dir, each scanned dir is a kustomization. The step then populate the SERVICES env and subsequence steps will consume such env.
+
 # Worklog
 ## Research
-start: 21:45
-end: 22:20
+Duration: 35m
 
-- github actions with a dummy comment on PR
-- explore kind action
+Create a Github repository with a basic workflow utilizing an action to post comment on PR. Also explore some tools that I wasn't familiar with like kind (I only used minikube and k3s before) and vegeta (I'm only familiar with locust).
 
 ## Working on local instance of kind cluster for faster development
-start: 22:20
-end: 23:30
+Duration: 1h10
 
-- provision cluster
-- provision resources
-- vegeta attack and report
-- comment
+Provision kind cluster and create required k8s resources. I also tested out how to integrate vegeta with the workflow. Develop locally help speeding up the developing time.
 
 ## Feature complete workflow
-start: 18:15
-end: 19:30
+Duration: 1h30
+
+Create a complete Github Action workflow. At this stage, it's considered that the feature is complete and users can start using it. Any enhancement/optimization can happen in the background afterwards without breaking (or minimize) user experience.
+
+## Enhancement
+Duration: 2h30
+
+Explore rooms for improvement like remove duplications, organize files better, refactor for easier reading, update README, etc.
