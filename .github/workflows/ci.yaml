@@ -5,6 +5,9 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  SERVICES: foo bar #TODO: provide services list externally for easily adding new services for test
+
 jobs:
   example_comment_pr:
     runs-on: ubuntu-latest
@@ -16,7 +19,7 @@ jobs:
       - name: Create k8s Kind Cluster
         uses: helm/kind-action@v1
         with:
-          config: "./kind-config.yaml"
+          config: "./kind/config.yaml"
 
       - name: Deploy k8s resources
         run: |
@@ -26,43 +29,39 @@ jobs:
             --selector=app.kubernetes.io/component=controller \
             --timeout=90s
 
-          kubectl apply -k manifests/foo
-          kubectl wait --namespace foo \
-            --for=condition=ready pod \
-            --selector=app.kubernetes.io/name=http-echo \
-            --timeout=90s
-
-          kubectl apply -k manifests/bar
-          kubectl wait --namespace bar \
-            --for=condition=ready pod \
-            --selector=app.kubernetes.io/name=http-echo \
-            --timeout=90s
+          for svc in ${{ env.SERVICES }}; do
+            kubectl apply -k manifests/app/overlays/${svc}
+            kubectl wait --namespace ${svc} \
+              --for=condition=ready pod \
+              --selector=app.kubernetes.io/name=http-echo \
+              --timeout=90s
+          done
 
       - name: Load test
         id: load_test
         run: |
-          curl -Lo vegeta.tar.gz https://github.com/tsenart/vegeta/releases/download/v12.11.1/vegeta_12.11.1_linux_amd64.tar.gz && tar xvf vegeta.tar.gz
+          VEGETA_VERSION=12.11.1
+          VEGETA_ARCH=linux_amd64
 
-          results_foo=$(echo "GET http://localhost" \
-          | ./vegeta attack -header "Host: foo.localhost" -duration=5s \
-          | tee results_foo.bin \
-          | ./vegeta report)
+          curl -Lo vegeta.tar.gz https://github.com/tsenart/vegeta/releases/download/v${VEGETA_VERSION}/vegeta_${VEGETA_VERSION}_${VEGETA_ARCH}.tar.gz \
+            && tar xvf vegeta.tar.gz
 
-          echo "RESULTS_FOO<<EOF"$'\n'"$results_foo"$'\n'EOF >> "$GITHUB_OUTPUT"
+          echo "LOAD_TEST_REPORT<<EOF"$'\n' >> "$GITHUB_OUTPUT"
 
-          results_bar=$(echo "GET http://localhost" \
-          | ./vegeta attack -header "Host: bar.localhost" -duration=5s \
-          | tee results_bar.bin | ./vegeta report)
+          for host in ${{ env.SERVICES }}; do
+            duration=$((1 + RANDOM % 10)) # run test randomly between 1-10 seconds
+            echo $'\n'"** Load test report of service ${host} **" >> $GITHUB_OUTPUT
+            echo "GET http://localhost" \
+              | ./vegeta attack -header "Host: ${host}.localhost" -duration=${duration}s \
+              | ./vegeta report >> $GITHUB_OUTPUT
+          done
 
-          echo "RESULTS_BAR<<EOF"$'\n'"$results_bar"$'\n'EOF >> "$GITHUB_OUTPUT"
+          echo $'\n'EOF >> "$GITHUB_OUTPUT"
 
       # Needs write permission: Settings -> Actions -> General -> Workflow permissions
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
-            Load testing of FOO service:
-            ${{ steps.load_test.outputs.RESULTS_FOO }}
-
-            Load testing of BAR service:
-            ${{ steps.load_test.outputs.RESULTS_BAR }}
+            **Load testing report:**
+            ${{ steps.load_test.outputs.LOAD_TEST_REPORT }}
