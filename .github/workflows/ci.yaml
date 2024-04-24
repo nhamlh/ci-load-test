@@ -62,7 +62,7 @@ jobs:
         with:
           message: |
             Load testing of FOO service:
-            ${{ steps.k8s_pods.outputs.RESULTS_FOO }}
+            ${{ steps.load_test.outputs.RESULTS_FOO }}
 
             Load testing of BAR service:
-            ${{ steps.k8s_pods.outputs.RESULTS_BAR }}
+            ${{ steps.load_test.outputs.RESULTS_BAR }}
