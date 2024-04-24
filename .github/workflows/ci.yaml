@@ -6,7 +6,7 @@ on:
     branches: [main]
 
 env:
-  SERVICES: foo bar
+  SERVICES: foo bar #TODO: provide services list externally for easily adding new services for test
 
 jobs:
   example_comment_pr:
@@ -29,17 +29,13 @@ jobs:
             --selector=app.kubernetes.io/component=controller \
             --timeout=90s
 
-          kubectl apply -k manifests/app/overlays/foo
-          kubectl wait --namespace foo \
-            --for=condition=ready pod \
-            --selector=app.kubernetes.io/name=http-echo \
-            --timeout=90s
-
-          kubectl apply -k manifests/app/overlays/bar
-          kubectl wait --namespace bar \
-            --for=condition=ready pod \
-            --selector=app.kubernetes.io/name=http-echo \
-            --timeout=90s
+          for svc in ${{ env.SERVICES }}; do
+            kubectl apply -k manifests/app/overlays/${svc}
+            kubectl wait --namespace ${svc} \
+              --for=condition=ready pod \
+              --selector=app.kubernetes.io/name=http-echo \
+              --timeout=90s
+          done
 
       - name: Load test
         id: load_test
@@ -53,9 +49,10 @@ jobs:
           echo "LOAD_TEST_REPORT<<EOF"$'\n' >> "$GITHUB_OUTPUT"
 
           for host in ${{ env.SERVICES }}; do
+            duration=$((1 + RANDOM % 10)) # run test randomly between 1-10 seconds
             echo $'\n'"** Load test report of service ${host} **" >> $GITHUB_OUTPUT
             echo "GET http://localhost" \
-              | ./vegeta attack -header "Host: ${host}.localhost" -duration=5s \
+              | ./vegeta attack -header "Host: ${host}.localhost" -duration=${duration}s \
               | ./vegeta report >> $GITHUB_OUTPUT
           done
 
